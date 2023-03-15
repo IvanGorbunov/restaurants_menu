@@ -54,4 +54,3 @@ class Food(models.Model):
 
     def __str__(self) -> str:
         return f'Блюдо: {self.name} - {self.id}'
-
