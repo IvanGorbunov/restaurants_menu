@@ -12,9 +12,6 @@ COPY ./requirements.txt /restaurants_menu/requirements.txt
 RUN python3 -m pip install --upgrade pip
 RUN pip3 install -r /restaurants_menu/requirements.txt
 
-#RUN apt-get install gettext -y
-
-
 # set open port
 EXPOSE 8027
 
