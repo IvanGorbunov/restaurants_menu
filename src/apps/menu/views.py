@@ -10,7 +10,6 @@ class MenuViewSet(MultiSerializerViewSet):
         'list': FoodCategoryListSerializer,
     }
 
-
     def list(self, request, *args, **kwargs):
         """
         Список блюд по категориям

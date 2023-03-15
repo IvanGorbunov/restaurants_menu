@@ -53,5 +53,5 @@ class Food(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f'Ингридиент: {self.name} - {self.id}'
+        return f'Блюдо: {self.name} - {self.id}'
 
