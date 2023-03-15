@@ -95,7 +95,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'settings.wsgi.application'
 
-## region Database
+# region Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 if os.getenv('GITHUB_WORKFLOW'):
