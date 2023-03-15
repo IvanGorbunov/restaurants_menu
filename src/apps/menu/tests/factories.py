@@ -37,8 +37,3 @@ class FoodFactory(DjangoModelFactory):
     category = factory.SubFactory(FoodCategoryFactory)
     description = factory.fuzzy.FuzzyText(length=500)
     price = factory.fuzzy.FuzzyInteger(0, 10000, step=50)
-
-    # toppings = factory.List([
-    #     factory.SubFactory(ToppingFactory) for _ in range(5)
-    # ])
-
