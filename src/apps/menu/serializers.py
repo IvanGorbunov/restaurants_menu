@@ -49,6 +49,16 @@ class FoodListSerializer(serializers.ModelSerializer):
 class FilteredFoodCategoryListSerializer(serializers.ListSerializer):
 
     def to_representation(self, instance):
+        is_vegan = self.context['request'].query_params.get('is_vegan')
+        if is_vegan:
+            instance = instance.filter(foods__is_vegan=is_vegan)
+        is_special = self.context['request'].query_params.get('is_special')
+        if is_special:
+            instance = instance.filter(foods__is_special=is_special)
+        data = self.context['request'].data
+        if data and isinstance(data, list):
+            instance = instance.filter(foods__toppings__name__in=data)
+
         instance = instance.annotate(foods_count=Count('foods'))
         instance = instance.exclude(foods_count=0)
         return super().to_representation(instance)
