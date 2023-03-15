@@ -12,11 +12,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import environ
 import os
-from django.utils.translation import gettext_lazy as _
-from pathlib import Path
 
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
+from pathlib import Path
 
 env = environ.Env(
     # set casting, default value
@@ -52,6 +49,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'rest_framework',
+    'django_filters',
+
+    'apps.menu',
+
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -63,6 +67,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+if SQL_DEBUG:
+    MIDDLEWARE = MIDDLEWARE + ['utils.middleware.DebugQuerysetsWare']
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 ROOT_URLCONF = 'settings.urls'
 
@@ -85,17 +95,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'settings.wsgi.application'
 
-
-# Database
+## region Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.getenv('GITHUB_WORKFLOW'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'github-actions',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': 'localhost',
+            'PORT': '5432'
+        }
     }
-}
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': env.str('SQL_ENGINE', 'django.db.backends.sqlite3'),
+            'NAME': env.str('SQL_DATABASE', os.path.join(BASE_DIR, "../db.sqlite3")),
+            'USER': env.str('SQL_USER', 'user'),
+            'PASSWORD': env.str('SQL_PASSWORD', 'password'),
+            'HOST': env.str('SQL_HOST', 'localhost'),
+            'PORT': env.str('SQL_PORT', '5432'),
+        }
+    }
+# endregion
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -121,7 +146,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -131,7 +156,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = env.str('STATIC_ROOT', '')
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+MEDIA_ROOT = env.str('MEDIA_ROOT', default=str(ROOT_DIR('media')))
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -140,20 +172,31 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # region Sentry
 
-sentry_sdk.init(
-    dsn="https://0e54d8b553f04ffd95db488d03b7a512@o4504369304698880.ingest.sentry.io/4504832274530304",
-    integrations=[
-        DjangoIntegration(),
-    ],
+if DEBUG:
+    import socket
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
 
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=1.0,
 
-    # If you wish to associate users to errors (assuming you are using
-    # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
-)
+SENTRY_DSN = env.str('SENTRY_DSN', None)
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(),
+        ],
+
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True
+    )
 
 # endregion Sentry
