@@ -8,6 +8,9 @@ class Topping(models.Model):
     class Meta:
         verbose_name = 'Ингридиент'
         verbose_name_plural = 'Ингридиенты'
+        ordering = [
+            'name',
+        ]
 
     def __str__(self) -> str:
         return f'Ингридиент: {self.name} - {self.id}'
@@ -21,6 +24,9 @@ class FoodCategory(models.Model):
     class Meta:
         verbose_name = 'Категория блюда'
         verbose_name_plural = 'Категории блюд'
+        ordering = [
+            'name',
+        ]
 
     def __str__(self) -> str:
         return f'Категория: {self.name} - {self.id}'
@@ -29,7 +35,7 @@ class FoodCategory(models.Model):
 class Food(models.Model):
     """ Модель блюда """
     name = models.CharField('Наименование ингридиента', null=False, max_length=350)
-    category = models.ForeignKey(FoodCategory, verbose_name='Категория блюда', related_name='food', on_delete=models.PROTECT)
+    category = models.ForeignKey(FoodCategory, verbose_name='Категория блюда', related_name='foods', on_delete=models.PROTECT)
     description = models.TextField('Описание', blank=True, null=True)
     price = models.IntegerField('Цена', default=0)
 
@@ -42,6 +48,9 @@ class Food(models.Model):
     class Meta:
         verbose_name = 'Блюдо'
         verbose_name_plural = 'Блюда'
+        ordering = [
+            'name',
+        ]
 
     def __str__(self) -> str:
         return f'Ингридиент: {self.name} - {self.id}'

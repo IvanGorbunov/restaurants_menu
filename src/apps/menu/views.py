@@ -1,23 +1,18 @@
-from django.shortcuts import render
-
-from apps.menu.models import Food
+from apps.menu.models import FoodCategory
 from utils.views import MultiSerializerViewSet
 
-from apps.menu.filters import FoodFilter
-from apps.menu.serializers import FoodListSerializer
+from apps.menu.serializers import FoodCategoryListSerializer
 
 
 class MenuViewSet(MultiSerializerViewSet):
-    queryset = Food.objects.filter(is_publish=True)
-    filtersets = {
-        'list': FoodFilter,
-    }
+    queryset = FoodCategory.objects.filter(is_publish=True)
     serializers = {
-        'list': FoodListSerializer,
+        'list': FoodCategoryListSerializer,
     }
+
 
     def list(self, request, *args, **kwargs):
         """
-        Список блюд
+        Список блюд по категориям
         """
         return super().list(request, *args, **kwargs)

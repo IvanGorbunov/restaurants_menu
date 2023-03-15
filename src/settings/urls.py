@@ -22,7 +22,7 @@ from .yasg import urlpatterns as doc_url
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('v1/', include('settings.urls_api_v1')),
+    path('api/v1/', include('settings.urls_api_v1')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + doc_url
 
 if settings.DEBUG:

@@ -67,6 +67,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+if SQL_DEBUG:
+    MIDDLEWARE = MIDDLEWARE + ['utils.middleware.DebugQuerysetsWare']
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 ROOT_URLCONF = 'settings.urls'
 
